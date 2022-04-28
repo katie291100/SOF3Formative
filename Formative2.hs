@@ -43,11 +43,11 @@ A board contains 14 _logical_ squares, arranged as 20 _physical_ squares.
 
 ```
 -----------------------------------------                   ---------------------
-| *Sq_4   |  Sq_3   |  Sq_2   |  Sq_1   |                   | *Sq14   |  Sq13   | 
+| *Sq_4   |  Sq_3   |  Sq_2   |  Sq_1   |                   | *Sq14   |  Sq13   |
 ---------------------------------------------------------------------------------
-|  Sq_5   |  Sq_6   |  Sq_7   | *Sq_8   |  Sq_9   |  Sq10   |  Sq11   |  Sq12   | 
+|  Sq_5   |  Sq_6   |  Sq_7   | *Sq_8   |  Sq_9   |  Sq10   |  Sq11   |  Sq12   |
 ---------------------------------------------------------------------------------
-| *Sq_4   |  Sq_3   |  Sq_2   |  Sq_1   |                   | *Sq14   |  Sq13   | 
+| *Sq_4   |  Sq_3   |  Sq_2   |  Sq_1   |                   | *Sq14   |  Sq13   |
 -----------------------------------------                   ---------------------
 ```
 
@@ -125,7 +125,8 @@ data GameState = GameState Placement Player
 Implement the utility function `opponent` that returns a player's opponent.
 -}
 opponent :: Player -> Player
-opponent = undefined
+opponent Red = Green
+opponent Green = Red
 test_opponent :: Bool
 test_opponent = opponent Red == Green
 {-
@@ -148,7 +149,8 @@ treated as `Home`).
 
 -}
 plus :: Position -> Int -> Position
-plus = undefined
+plus x roll | fromEnum x + roll > 14 = Home
+            | otherwise = toEnum (fromEnum x + roll) :: Position
 test_plus :: Bool
 test_plus =    Start `plus` 0 == Start
             && Start `plus` 3 == Sq_3
@@ -163,8 +165,10 @@ between lists and `Placement`s.  They should be inverses of each other.
 -}
 toList :: Placement -> [((Position, Player), Int)]
 fromList :: [((Position, Player), Int)] -> Placement
-toList = undefined
-fromList = undefined
+toList p = [((pos,pla),p (pos,pla))| pos <- [Start .. Home], pla <- [Green,Red]]
+fromList ps = find
+    where
+        find (pos,pla) = maybe 0 id $ lookup (pos,pla) ps
 testToFromList :: Bool
 testToFromList = ((Sq_3, Red), 9) `elem` toList(fromList [((Sq_3, Red), 9)])
                  && ((Sq10, Red), 0) `elem` toList(fromList [((Sq_3, Red), 9)])
@@ -187,10 +191,15 @@ Implement a pair of functions `validList` and `validPlacement` that
 check for validity.
 
 -}
+
 validPlacement :: Placement -> Bool
 validList :: [((Position, Player), Int)] -> Bool
-validList = undefined
-validPlacement = undefined
+validList xs = (check extractGreen) && (check extractRed) && checkAll
+  where extractGreen = [(val)| ((pos, pl), val) <- xs, pl == Green]
+        extractRed = [(val)| ((pos, pl), val) <- xs, pl == Red]
+        check ys = (sum ys) == piecesPerPlayer
+        checkAll = all (\((x, y), z) -> z <= piecesPerPlayer ) xs
+validPlacement = validList . toList
 
 test_validPlacement :: Bool
 test_validPlacement = not (validPlacement (fromList [((Start,Red),9), ((Start,Green),7)]))
@@ -202,7 +211,7 @@ The initial state has both players with all their tokens at the start.
 The first move belongs to the "red" player.  Implement this state.
 -}
 initGS :: GameState
-initGS = undefined
+initGS = GameState (fromList [((Start, Green), 7), ((Start, Red), 7)]) Red
 
 test_initGS_placement :: Bool
 test_initGS_placement = validPlacement plac
@@ -231,7 +240,12 @@ is `0` there is an ambiguity: are there no moves, or can any piece be
 moves.
 -}
 possibleMoves :: GameState -> Int -> [Position]
-possibleMoves = undefined
+possibleMoves _ 0 = []
+possibleMoves (GameState placement player) roll = [x | x <-  [Start .. Sq14],
+                                                  (placement (x, player))==1,
+                                                  ((plus x roll) /= Sq_8 || (placement(Sq_8, opponent player)==0)),
+                                                  placement(plus x roll, player) == 0, ]
+
 test_possibleMoves :: Bool
 test_possibleMoves =    possibleMoves initGS 0 == []
                      && possibleMoves initGS 3 == [Start]
@@ -323,4 +337,3 @@ test_playSequence_gameOver =
   where
     seq1 = cycle [(4, Start), (4, Sq_4), (4, Sq_8), (0, Start), (4, Sq12), (0, Start)]
     seq2 = (0, Start) : seq1
-
