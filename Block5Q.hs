@@ -122,7 +122,9 @@ prereq DAT1 = [THE1]
 prereq _    = []
 
 checkPrereqs :: Student -> Bool
-checkPrereqs = undefined
+checkPrereqs (Student ms) = and $ map check ms
+  where modules = [ m | (m, _) <- ms]
+        check (x, _) = isInfixOf (prereq x) (modules) 
 
 
 {-
@@ -137,7 +139,7 @@ quarterId :: (Fractional a) => a -> a
 quarterId = (*4) . quarter
 
 prop_quarter :: Float ->  Bool
-prop_quarter = undefined
+prop_quarter x = quarterId x == x
 
 
 {-
@@ -153,7 +155,10 @@ listOrdered xs = snd $ foldr go (Nothing, True) xs
 
 
 prop_listOrdered :: String -> Bool
-prop_listOrdered = undefined
+prop_listOrdered [] = True 
+prop_listOrdered xs =  (listOrdered $ sort xs) && not (listOrdered $ xs )
+
+
 
 {-
 ### Problem 5 - QuickCheck 
