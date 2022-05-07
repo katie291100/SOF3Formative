@@ -149,9 +149,8 @@ treated as `Home`).
 
 -}
 plus :: Position -> Int -> Position
-plus Home _ = Home
-plus pos roll | roll + (fromEnum pos)> 14 = Home
-              | otherwise = toEnum (roll + (fromEnum pos)) :: Position
+plus x roll | fromEnum x + roll > 14 = Home
+            | otherwise = toEnum (fromEnum x + roll) :: Position
 test_plus :: Bool
 test_plus =    Start `plus` 0 == Start
             && Start `plus` 3 == Sq_3
@@ -194,6 +193,7 @@ Implement a pair of functions `validList` and `validPlacement` that
 check for validity.
 
 -}
+
 validPlacement :: Placement -> Bool
 validList :: [((Position, Player), Int)] -> Bool
 validList xs = (check extractGreen) && (check extractRed) && checkAll
@@ -201,7 +201,7 @@ validList xs = (check extractGreen) && (check extractRed) && checkAll
         extractRed = [(val)| ((pos, pl), val) <- xs, pl == Red]
         check ys = (sum ys) == piecesPerPlayer
         checkAll = all (\((x, y), z) -> z <= piecesPerPlayer ) xs
-validPlacement = validList .  toList
+validPlacement = validList . toList
 
 test_validPlacement :: Bool
 test_validPlacement = not (validPlacement (fromList [((Start,Red),9), ((Start,Green),7)]))
@@ -242,7 +242,12 @@ is `0` there is an ambiguity: are there no moves, or can any piece be
 moves.
 -}
 possibleMoves :: GameState -> Int -> [Position]
-possibleMoves = undefined
+possibleMoves _ 0 = []
+possibleMoves (GameState placement player) roll = [x | x <-  [Start .. Sq14],
+                                                  (placement (x, player))==1,
+                                                  ((plus x roll) /= Sq_8 || (placement(Sq_8, opponent player)==0)),
+                                                  placement(plus x roll, player) == 0, ]
+
 test_possibleMoves :: Bool
 test_possibleMoves =    possibleMoves initGS 0 == []
                      && possibleMoves initGS 3 == [Start]
