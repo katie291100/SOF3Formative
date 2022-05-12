@@ -166,14 +166,17 @@ Given a datatype `Module`, use `Gen` from the `Test.QuickCheck` module to genera
 
 -}
 
+moGen :: Gen Module
+moGen = do
+ oneof [return $ THE1, return $ SOF1, return $ THE2, return $ SOF2, return $ SYS1, return $ DAT1, return $ HCI1]
+
 
 moGen :: Gen Module
 moGen = do
  oneof [return $ THE1, return $ SOF1, return $ THE2, return $ SOF2, return $ SYS1, return $ DAT1, return $ HCI1]
 
 instance Arbitrary Module where
- arbitrary = moGen
-
+  arbitrary = moGen
 -- sample $ (arbitrary :: Gen Module)
 {-
 ### Problem 6 - QuickCheck
@@ -183,6 +186,17 @@ Note: a randomly generated `Student` can have the same `Module` multiple time an
 -}
 
 instance Arbitrary Student where
- arbitrary = do
-   list <- arbitrary
-   return $ Student list-- sample $ (arbitrary :: Gen Student)
+  arbitrary = do
+    list <- arbitrary
+    return $ Student list
+-- sample $ (arbitrary :: Gen Student)
+
+newtype Al = Al (Char, Int)
+
+alGen :: Gen (Al (Char, Int))
+alGen =  do
+   a <- arbitrary
+   return (Al (Char, a))
+
+instance Arbitrary Al where
+  arbitrary = alGen

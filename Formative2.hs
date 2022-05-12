@@ -151,6 +151,7 @@ treated as `Home`).
 plus :: Position -> Int -> Position
 plus x roll | fromEnum x + roll > 14 = Home
             | otherwise = toEnum (fromEnum x + roll) :: Position
+
 test_plus :: Bool
 test_plus =    Start `plus` 0 == Start
             && Start `plus` 3 == Sq_3
