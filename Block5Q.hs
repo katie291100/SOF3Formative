@@ -171,9 +171,6 @@ moGen = do
  oneof [return $ THE1, return $ SOF1, return $ THE2, return $ SOF2, return $ SYS1, return $ DAT1, return $ HCI1]
 
 
-moGen :: Gen Module
-moGen = do
- oneof [return $ THE1, return $ SOF1, return $ THE2, return $ SOF2, return $ SYS1, return $ DAT1, return $ HCI1]
 
 instance Arbitrary Module where
   arbitrary = moGen
