@@ -69,6 +69,7 @@ cmbList :: [a] -> [a] -> [a]
 
 cmbList (x:xs) (y:ys) = y : x : (cmbList xs ys)
 cmbList [] _ = []
+cmbList _ [] = []
 
 
 {-
@@ -164,7 +165,6 @@ testcmb = (cmb "Hello" [] [] == []) &&
 
 
 cmb :: Num a => String -> [a] -> [a] -> [a]
-
 cmb = undefined
 
 
@@ -232,8 +232,7 @@ testavg = avgSYS1 s1Db == 60.8
 
 avgSYS1 :: [CS1] -> Float
 
-avgSYS1  = undefined
-
+avgSYS1 db1 = (fromIntegral (sum $ [sys1 x | x <- db1])) / fromIntegral (length db1)
 {-
 ## Qix: [4 mark]
 Write a function `vowelDigit` which returns `True` when applied to a string with alternating vowels and digits and `False` otherwise. The vowel comes first in each pair and the input list must have even length. `vowelDigit` tests if a `String` has vowels in even positions and digits in odd positions (recall that indexing starts from 0), and as many vowels as digits.
@@ -258,8 +257,8 @@ testvowelDigit =
 
 
 vowelDigit :: String -> Bool
-vowelDigit = undefined
-
+vowelDigit (x:y:xs) = (x `elem` "aeiouAEIOU") && isDigit y && vowelDigit xs
+vowelDigit xs = null xs
 
 {-
 ## Qx: [7 mark]
@@ -296,7 +295,7 @@ testBal = (isTreeBal (nullBR) == True ) &&
 
 
 isTreeBal :: BinTree a -> Bool
-isTreeBal (Leaf a) = True
+isTreeBal (Lf a) = True
 isTreeBal (Branch left a right) = (fromRoot' left == fromRoot' right) && isTreeBal left && isTreeBal right
   where
     fromRoot' (Lf x) = x

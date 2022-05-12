@@ -23,7 +23,7 @@ filterFile select source destination =
                -- forever terminates when an EOF exception is thrown in transferOneLine
   where
     forever act = let fra = do {act; fra} in fra
-    
+
 transferOneLine :: (String -> Bool) -> Handle -> Handle -> IO ()
 transferOneLine p s d = do
   line <- hGetLine s
@@ -102,7 +102,7 @@ data Module = THE1 | SOF1 | THE2 | SOF2 | SYS1 | DAT1 | HCI1 deriving (Show, Eq)
 checkMarks :: [Student] -> Bool
 checkMarks xs = all verifyIt xs
 	where verifyIt (Student ms) = null [ () | (m, Just i) <- ms, i > 100 || i<0]
-  
+
 csStage, csStage1, csStage2 :: [Student]
 csStage = [Student [(SOF1, Just 140), (THE2, Nothing)], Student [(SOF1, Nothing), (SOF2, Nothing)], Student [(SOF1, Just 56)]]
 csStage1 = [Student [(SOF1, Just 40), (THE1, Nothing)], Student [(SOF1, Nothing), (THE1, Nothing)], Student [(SOF1, Just 56), (THE1, Just 77)]]
@@ -124,11 +124,11 @@ prereq _    = []
 checkPrereqs :: Student -> Bool
 checkPrereqs (Student ms) = and $ map check ms
   where modules = [ m | (m, _) <- ms]
-        check (x, _) = isInfixOf (prereq x) (modules) 
+        check (x, _) = isInfixOf (prereq x) (modules)
 
 
 {-
-### Problem 3 - QuickCheck 
+### Problem 3 - QuickCheck
 For a function `quarterId`, write a suitable property `prop_quarter` and use QuickCheck to verify that `quarterId` holds.
 -}
 
@@ -143,8 +143,8 @@ prop_quarter x = quarterId x == x
 
 
 {-
-### Problem 4 - QuickCheck 
-For a function `listOrdered`, write a suitable property and use QuickCheck to verify that the property holds for all sorted lists. 
+### Problem 4 - QuickCheck
+For a function `listOrdered`, write a suitable property and use QuickCheck to verify that the property holds for all sorted lists.
 
 -}
 listOrdered :: (Ord a) => [a] -> Bool
@@ -155,22 +155,27 @@ listOrdered xs = snd $ foldr go (Nothing, True) xs
 
 
 prop_listOrdered :: String -> Bool
-prop_listOrdered [] = True 
+prop_listOrdered [] = True
 prop_listOrdered xs =  (listOrdered $ sort xs) && not (listOrdered $ xs )
 
 
 
 {-
-### Problem 5 - QuickCheck 
-Given a datatype `Module`, use `Gen` from the `Test.QuickCheck` module to generate random values of `Module` with equal probabilities. 
+### Problem 5 - QuickCheck
+Given a datatype `Module`, use `Gen` from the `Test.QuickCheck` module to generate random values of `Module` with equal probabilities.
 
 -}
 
+moGen :: Gen Module
+moGen = do
+ oneof [return $ THE1, return $ SOF1, return $ THE2, return $ SOF2, return $ SYS1, return $ DAT1, return $ HCI1]
+
 
 instance Arbitrary Module where
+  arbitrary = moGen
 -- sample $ (arbitrary :: Gen Module)
 {-
-### Problem 6 - QuickCheck 
+### Problem 6 - QuickCheck
 Given that a student has type: `newtype Student = Student [(Module, Maybe Int)]`, use `Gen` to generate random values of type `Student`.
 Note: a randomly generated `Student` can have the same `Module` multiple time and mark outsite the range 0-100.
 
@@ -178,6 +183,17 @@ Note: a randomly generated `Student` can have the same `Module` multiple time an
 
 
 instance Arbitrary Student where
+  arbitrary = do
+    list <- arbitrary
+    return $ Student list
 -- sample $ (arbitrary :: Gen Student)
 
+newtype Al = Al (Char, Int)
 
+alGen :: Gen (Al (Char, Int))
+alGen =  do
+   a <- arbitrary
+   return (Al (Char, Int))
+
+instance Arbitrary Al where
+  arbitrary = alGen
