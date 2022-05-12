@@ -151,6 +151,7 @@ treated as `Home`).
 plus :: Position -> Int -> Position
 plus x roll | fromEnum x + roll > 14 = Home
             | otherwise = toEnum (fromEnum x + roll) :: Position
+
 test_plus :: Bool
 test_plus =    Start `plus` 0 == Start
             && Start `plus` 3 == Sq_3
@@ -165,10 +166,18 @@ between lists and `Placement`s.  They should be inverses of each other.
 -}
 toList :: Placement -> [((Position, Player), Int)]
 fromList :: [((Position, Player), Int)] -> Placement
+
 toList p = [((pos,pla),p (pos,pla))| pos <- [Start .. Home], pla <- [Green,Red]]
-fromList ps = find
+
+
+
+fromList ps = placement
     where
-        find (pos,pla) = maybe 0 id $ lookup (pos,pla) ps
+      placement (pos,pla) = maybe 0 id $ lookup (pos,pla) ps
+
+x = 2
+
+
 testToFromList :: Bool
 testToFromList = ((Sq_3, Red), 9) `elem` toList(fromList [((Sq_3, Red), 9)])
                  && ((Sq10, Red), 0) `elem` toList(fromList [((Sq_3, Red), 9)])
