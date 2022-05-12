@@ -193,7 +193,7 @@ newtype Al = Al (Char, Int)
 alGen :: Gen (Al (Char, Int))
 alGen =  do
    a <- arbitrary
-   return (Al (Char, Int))
+   return (Al (Char, a))
 
 instance Arbitrary Al where
   arbitrary = alGen
